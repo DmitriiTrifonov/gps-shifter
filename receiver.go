@@ -6,42 +6,45 @@ import (
 	"log"
 )
 
-// Move to config file
-const portName = "/dev/ttyUSB0"
-const maxBufferSize = 512
+type Receiver struct {
+	portName   string
+	bufferSize int
+	baudRate   int
+	port       serial.Port
+}
 
-func ReceiveNMEAData() string {
+func NewReceiver(portName string, bufferSize, baudRate int) (*Receiver, error) {
 	mode := &serial.Mode{
-		BaudRate: 9600,
+		BaudRate: baudRate,
 	}
 	port, err := serial.Open(portName, mode)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+	return &Receiver{
+		portName:   portName,
+		bufferSize: bufferSize,
+		baudRate:   baudRate,
+		port:       port,
+	}, nil
+}
 
-	start := nmea.GLL{}
-
+func (r *Receiver) ReceiveNMEAData(out chan nmea.GLL) {
 	buf := make([]byte, 128)
 	byteChannel := make(chan byte, 1000)
-	gllPhrase := make([]byte, 0, maxBufferSize)
+	gllPhrase := make([]byte, 0, r.bufferSize)
 
-	go receiveGLLData(port, byteChannel, buf)
+	go receiveGLLData(r.port, byteChannel, buf)
 
 	for {
 		phrase := getGLLData(gllPhrase, byteChannel)
-		log.Println(phrase)
 		loc, err := GetLocation(phrase)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		delta := GetDelta(start, loc)
-
-		log.Println(delta.String())
-
-		start = loc
-
+		out <- loc
 	}
 }
 
