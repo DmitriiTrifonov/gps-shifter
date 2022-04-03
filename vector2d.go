@@ -1,6 +1,9 @@
 package gps_shifter
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Vector2D struct {
 	x float64
@@ -13,4 +16,8 @@ func NewVector2D(x2, y2, x1, y1 float64) Vector2D {
 
 func (v Vector2D) String() string {
 	return fmt.Sprintf("x: %f, y: %f", v.x, v.y)
+}
+
+func (v Vector2D) Length() float64 {
+	return math.Sqrt(v.x*v.x + v.y*v.y)
 }
