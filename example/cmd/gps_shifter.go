@@ -1,7 +1,7 @@
 package main
 
 import (
-	shifter "gps-shifter"
+	shifter "github.com/DmitriiTrifonov/gps-shifter"
 	"log"
 )
 
