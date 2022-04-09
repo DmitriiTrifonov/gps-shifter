@@ -1,4 +1,4 @@
-module gps-shifter
+module github.com/DmitriiTrifonov/gps-shifter
 
 go 1.18
 
